@@ -71,10 +71,34 @@ exports.edit_student_summary = function(req,res,next){
 exports.update_student_summary = function(req,res,next){
 	var new_student = req.body;
 	new_student.studentId = req.params.id;
-	console.log(new_student)
 	school_records.updateStudentSummary(new_student,function(err){
-		err && next();
+		if(err){
+			res.end("Invalid Data");
+		}
 		res.writeHead(302,{"Location": "/students/"+new_student.studentId});
 		res.end();
 	})
-}
+};
+
+exports.edit_subject_summary = function(req,res,next){
+	school_records.getSubjectSummary(req.params.id,function(err,subject){
+		if(!subject)
+			next();
+		else{
+			res.render('editSubjectSummary',subject[0]);
+		}
+	});
+};
+
+exports.update_subject_summary = function(req,res,next){
+	var new_subject = req.body;
+	new_subject.subjectId = req.params.id;
+
+	school_records.updateSubjectSummary(new_subject,function(err){
+		if(err){
+			res.end('Invalid Data');
+		}
+		res.writeHead(302,{"Location": "/subject/"+new_subject.subjectId});
+		res.end();
+	});
+};

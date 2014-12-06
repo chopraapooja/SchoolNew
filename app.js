@@ -23,8 +23,11 @@ app.get('/students/:id',school_routes.get_student);
 app.get('/grades/:id',school_routes.get_grade_summary);
 app.get('/subject/:id',school_routes.get_subject_summary);
 app.get('/editStudentSummary/:id',school_routes.edit_student_summary);
+app.get('/editSubjectSummary/:id',school_routes.edit_subject_summary);
 
 app.post('/students/:id',school_routes.update_student_summary);
+app.post('/subject/:id',school_routes.update_subject_summary);
+
 
 
 app.use(function(req, res, next) {

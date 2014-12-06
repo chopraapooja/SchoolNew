@@ -136,9 +136,29 @@ describe('school_records',function(){
 						done();
 					});
 				});
-							
-
 			});
 		});
 	});
+
+	describe('#updateSubjectSummary',function(){
+		it('update subject[name,max score and grade id]',function(done){
+			var newSubject = {subjectName:'comedy' ,subjectId:1,maxScore:75,gradeName:'2nd std'};
+
+			var expected = [{ subject_id: 1,subject_name: 'comedy',maxScore: 75,grade_id: 2,
+			grade_name: '2nd std',student_name: 'Abu',student_id: 1,score: 75 }];
+
+			school_records.updateSubjectSummary(newSubject, function(err){
+				assert.notOk(err);
+			school_records.getSubjectSummary(1,function(err,subject){
+					assert.notOk(err);
+					console.log(subject)
+					assert.equal(subject[0].subject_name,'comedy');
+					assert.equal(subject[0].maxScore, 75);
+					assert.equal(subject[0].grade_id,2)
+					assert.deepEqual(subject,expected);
+					done();
+				});
+			});
+		});
+	})
 });

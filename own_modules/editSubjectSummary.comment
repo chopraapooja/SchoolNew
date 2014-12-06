@@ -1,0 +1,8 @@
+{ subject_id: 1,
+  subject_name: 'Cricket',
+  maxScore: 100,
+  grade_id: 1,
+  grade_name: 'class-2',
+  student_name: 'Suparna Dey',
+  student_id: 1,
+  score: 100 }

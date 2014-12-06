@@ -1,0 +1,24 @@
+doctype html
+html
+ head
+  title Edit Subject Summary
+  link(rel='stylesheet', href='/stylesheets/style.css')  
+ body
+  h1 Edit Subject Summary
+
+  form(action='/subject/#{subject_id}' method='post')
+   | Subject Name:
+   input(type='text' value = '#{subject_name}' name='subjectName' required)
+   br
+   br
+
+   | Grade:
+   input(type='text' value = '#{grade_name}' name='gradeName' required)
+   br
+   br
+
+   | MaxScore:
+   input(type='text' value = '#{maxScore}' name='maxScore' required)
+   br
+
+   input(type='submit' value='submit')
