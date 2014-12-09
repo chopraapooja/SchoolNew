@@ -15,10 +15,14 @@ html
    th Student Name
    th Score
    each sc in score
-    tr 
-     td
-      a(href="/students/#{sc.student_id}") #{sc.student_name}
-     td #{sc.score}
+    form(action="/updateScore/#{id}",method="post")
+     tr 
+      td
+       a(href="/students/#{sc.student_id}") #{sc.student_name}
+      td 
+       input(type="number" value='#{sc.score}' name='score_#{id}_#{sc.student_id}')
+      td
+       input(type="submit" value="save score")
   br
-  button(type="button", onclick="location.href='/editSubjectSummary/#{id}'") Edit
+  button(type="button", onclick="location.href='/editSubjectSummary/#{id}'") Edit Subject
 

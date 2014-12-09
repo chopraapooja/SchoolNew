@@ -260,6 +260,21 @@ var _addNewSubject = function(new_subject,db,onComplete){
 	});
 };
 
+var getIds = function(key){
+	var ids = {};
+	ids.subjectId = key.split('_')[1];
+	ids.studentId = key.split('_')[2];
+	return ids;
+};
+
+var _updateScore = function(new_score,db,onComplete){
+	var key = Object.keys(new_score)[0]
+	var ids = getIds(key);
+	var update_score_query = 'update scores set score = "'+new_score[key]+'" where subject_id='+
+	ids.subjectId+ ' and student_id = '+ ids.studentId;
+	db.run(update_score_query,onComplete);	
+}
+
 var init = function(location){	
 	var operate = function(operation){
 		return function(){
@@ -289,6 +304,7 @@ var init = function(location){
 		updateSubjectSummary : operate(_updateSubjectSummary),
 		addNewStudent:operate(_addNewStudent),
 		addNewSubject:operate(_addNewSubject),
+		updateScore : operate(_updateScore)
 	};
 	return records;
 };

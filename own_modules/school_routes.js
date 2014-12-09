@@ -82,7 +82,6 @@ exports.update_student_summary = function(req,res,next){
 
 exports.edit_subject_summary = function(req,res,next){
 	school_records.getSubjectSummary(req.params.id,function(err,subject){
-		console.log("=======>>",subject);
 		if(!subject)
 			next();
 		else{
@@ -130,3 +129,16 @@ exports.add_new_subject = function(req,res,next){
 		}
 	});
 };
+
+exports.update_score = function(req,res,next){
+	var new_score = req.body;
+	school_records.updateScore(new_score,function(err){
+		if(err){
+			res.send('Invalid data');
+		}
+		else{
+			res.writeHead(302,{'Location':"/subject/"+req.params.id});
+			res.end();
+		};
+	})
+}

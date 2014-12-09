@@ -201,4 +201,18 @@ describe('school_records',function(){
 			});
 		});
 	});
+
+	describe('#updateScore',function(){
+		it('add a score in score table',function(done){
+			var new_score = {'score_1_1':50};
+
+			school_records.updateScore(new_score,function(err){
+				assert.notOk(err);
+				school_records.getStudentSummary(1, function(err,s){				
+					assert.deepEqual(s.subjects[0],{id:1,name:'English-1',score:50,maxScore:100});
+					done();
+				});
+			})
+		})
+	})
 });
