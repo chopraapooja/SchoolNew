@@ -6,9 +6,9 @@ html
  body
   h1 Edit Subject Summary
 
-  form(action='/subject/#{subject_id}' method='post')
+  form(action='/subject/#{id}' method='post')
    | Subject Name:
-   input(type='text' value = '#{subject_name}' name='subjectName' required)
+   input(type='text' value = '#{name}' name='subjectName' required)
    br
    br
 

@@ -163,23 +163,29 @@ describe('school_records',function(){
 	describe('#addNewStudent',function(){
 		it('add a new student in students table',function(done){
 			var newStudent = {studentName:'chopra',gradeId:1};
+			var expectedSubjects = [{id:1,name:'English-1',score:null,maxScore:100},
+										{id:2,name:'Maths-1',score:null,maxScore:100},
+										{id:3,name:'Moral Science',score:null,maxScore:50}];
 			school_records.addNewStudent(newStudent,function(err){
 				assert.notOk(err);
-				school_records.getStudentSummary(8, function(err,s){				
+				school_records.getStudentSummary(8, function(err,s){			
 					assert.equal(s.name,'chopra');
 					assert.equal(s.grade_name,'1st std');
 					assert.equal(s.grade_id,1);
-					//wtrfassert.equal(s.score, {"1" : 75,"2" : 50,"3" : 25});
+					assert.deepEqual(s.subjects, expectedSubjects);
 					done();
 				});
-
 			});
 		});
 	});
+
 	describe('#addNewSubject',function(){
 		it('add a new subject in subjects table',function(done){
 			var newSubject = {subject_name:'cricket',gradeId:2,maxScore:100};
 			school_records.addNewSubject(newSubject,function(err){
+				var expectedScore = [{ student_id: 5, student_name: 'Kaapi', score: null },
+    								{ student_id: 6, student_name: 'Paapi', score: null },
+     								{ student_id: 7, student_name: 'Beepi', score: null } ];
 				assert.notOk(err);
 				school_records.getSubjectSummary(4,function(err,subject){
 					assert.notOk(err);
@@ -189,7 +195,7 @@ describe('school_records',function(){
 	  						name: 'cricket',
 	  						grade_id: 2,
 	  						grade_name: '2nd std',
-	  						score: [] });
+	  						score: expectedScore});
 					done();
 				});
 			});

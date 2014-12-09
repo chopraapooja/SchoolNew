@@ -1,1 +1,11 @@
- {name: 'comedy', maxScore: 75, grade_id: 2, grade_name:}
+ =======>> { id: 4,
+  maxScore: 100,
+  name: 'Hindi',
+  grade_id: 2,
+  grade_name: 'class-2',
+  score:
+   [ { student_id: 11, student_name: 'Bacha', score: 1 },
+     { student_id: 5, student_name: 'sayli', score: null },
+     { student_id: 6, student_name: 'Gaurav', score: null },
+     { student_id: 2, student_name: 'Vijay', score: null },
+     { student_id: 3, student_name: 'Pooja', score: null } ] }

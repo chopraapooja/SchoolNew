@@ -20,7 +20,6 @@ exports.get_subjects = function(req,res){
 exports.get_student = function(req,res,next){
 	school_records.getStudentSummary(req.params.id,
 		function(err,student){
-			console.log(student);
 			if(!student) 
 				next();
 			else 
@@ -83,10 +82,11 @@ exports.update_student_summary = function(req,res,next){
 
 exports.edit_subject_summary = function(req,res,next){
 	school_records.getSubjectSummary(req.params.id,function(err,subject){
+		console.log("=======>>",subject);
 		if(!subject)
 			next();
 		else{
-			res.render('editSubjectSummary',subject[0]);
+			res.render('editSubjectSummary',subject);
 		}
 	});
 };

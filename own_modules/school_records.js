@@ -35,63 +35,84 @@ var _getSubjectsByGrade = function(db,onComplete){
 	});	
 };
 
+var getSubjectsWithScore = function(studentId, db, onComplete){
+	var subject_score_query = 'select su.name, su.id, su.maxScore, sc.score '+
+	'from subjects su, scores sc '+
+	'where su.id = sc.subject_id and sc.student_id ='+studentId;
+
+	db.all(subject_score_query,onComplete);
+};
+
 var _getStudentSummary = function(id, db,onComplete){
 	var student_grade_query = 'select s.name as name, s.id as id, g.name as grade_name, g.id as grade_id '+
 		'from students s, grades g where s.grade_id = g.id and s.id='+id;
-	var subject_score_query = 'select su.name, su.id, su.maxScore, sc.score '+
-		'from subjects su, scores sc '+
-		'where su.id = sc.subject_id and sc.student_id ='+id;
+
 	db.get(student_grade_query,function(est,student){
 		if(!student){
 			onComplete(null,null);
 			return;
 		}
-		db.all(subject_score_query,function(esc,subjects){			
+		getSubjectsWithScore(id, db, function(err, subjects){
 			student.subjects = subjects;
-			onComplete(null,student);
-		})
-	});
-};
-var getStudentOfaGrade =function(grade,db,onComplete,id){
-	var student_query = "select id,name from students where grade_id="+id;
-	var subject_query = "select id,name from subjects where grade_id="+id;
-	db.all(student_query,function(est,students){
-		grade.students = students;
-		db.all(subject_query,function(esu,subjects){
-			grade.subjects = subjects;
-			onComplete(null,grade);		
+			onComplete(null, student);
 		});
 	});
-}
+};
+var getSubjectsOfGrade = function(id,db,onComplete){
+	var subject_query = "select id,name from subjects where grade_id="+id;
+	db.all(subject_query, onComplete);
+};
+
+var getStudentsOfaGrade =function(id,db,onComplete){
+	var student_query = "select id,name from students where grade_id="+id;
+	db.all(student_query,onComplete);
+};
+
+var getGradeDetails = function(grade, db, onComplete){
+	getStudentsOfaGrade(grade.id, db, function(err, students){
+		grade.students = students;
+		getSubjectsOfGrade(grade.id, db, function(err, subjects){
+			grade.subjects = subjects;
+			onComplete(null, grade);
+		});
+	});
+};
 
 var _getGradeSummary = function(id,db,onComplete){
 	var grade_query = "select id,name from grades where id="+id;
 	db.get(grade_query,function(err,grade){
-		getStudentOfaGrade(grade,db,onComplete,id)
+		getGradeDetails(grade,db,onComplete)
 	});
 };
 
 var _updateGrade = function(new_grade,db,onComplete){
 	var query = "update grades set name='"+new_grade.newname+"' where id="+new_grade.id;
 	db.run(query,onComplete);
-}
+};
 
-
+var getSubjectScores = function(subject, db, onComplete){
+	var student_score_query = "select st.id as student_id,"+
+	" st.name as student_name,"+
+	" sc.score as score from students st,"+
+	" scores sc"+
+	" where st.id=sc.student_id and st.grade_id="+subject.grade_id+" and sc.subject_id="+subject.id;
+	
+	db.all(student_score_query, function(err, scores){
+		subject.score=scores;
+		onComplete(null,subject);
+	});
+};
 
 var _getSubjectSummary = function(id,db,onComplete){
 	var subject_query = "select id,maxScore,name,grade_id from subjects where id="+id;
 	db.get(subject_query,function(err,subject){
 		var grade_query = "select name as grade_name from grades where id="+subject.grade_id;
-		var student_score_query = "select st.id as student_id,st.name as student_name, sc.score as score from students st, scores sc where st.id=sc.student_id and st.grade_id="+subject.grade_id+" and sc.subject_id="+id;
 		db.get(grade_query,function(egr,grade){
-			subject.grade_name = grade.grade_name;
-			db.all(student_score_query,function(esc,score){
-				subject.score=score;
-				onComplete(null,subject);
-			});
+			subject.grade_name = grade.grade_name;	
+			getSubjectScores(subject, db, onComplete);
 		});
 	});
-}
+};
 
 var getSubjectIds = function(new_student){
 	var expression = new RegExp(/^subId_/);
@@ -146,7 +167,9 @@ var updateScore = function(tableName,max_score,id,db){
 var updateStudentScore = function(new_student,db,onComplete){
 	var ids = getSubjectIds(new_student);
 	ids.forEach(function(id,index,array){
-		var score_query = "update scores set score='"+new_student["subId_"+id]+"' where subject_id="+id+" and student_id="+new_student.studentId ;
+		var score_query = "update scores set score='"+new_student["subId_"+id]+
+		"' where subject_id="+id+" and student_id="+new_student.studentId ;
+
 		db.serialize(function(err){
 			db.run(score_query,function(esc){
 				index==array.length-1 && onComplete(null);
@@ -156,59 +179,86 @@ var updateStudentScore = function(new_student,db,onComplete){
 };
 
 var _updateStudentSummary = function(new_student,db,onComplete){
-	updateStudentGradeId(new_student,db);
 	updateName("students",new_student.studentName,new_student.studentId,db);
+	updateStudentGradeId(new_student,db);
 	updateStudentScore(new_student,db,onComplete);
 };
-
 
 var _updateSubjectSummary = function(new_subject,db,onComplete){
 	updateName("subjects",new_subject.subjectName,new_subject.subjectId,db);
 	updateScore("subjects",new_subject.maxScore,new_subject.subjectId,db);
 	updateSubjectGradeId(new_subject,db,onComplete);
 };
-//SELECT * FROM TABLE WHERE ID = (SELECT MAX(ID) FROM TABLE);
-var _addNewStudent = function(new_student,db,onComplete){
-	var insert_query = "insert into students (name,grade_id) values('"+new_student.studentName+"',"+new_student.gradeId+")";
-	var selectLastStudentID = "select * from students where id=(select MAX(id) from students)";
+
+var addSubjectScores = function(subjectIds,student,db,onComplete){
+	subjectIds.forEach(function(subject, index, subjects){
+		var insert_into_score = "insert into scores (student_id, subject_id) values ("+
+			student.id+","+subject.id+" )";
+		db.run(insert_into_score, function(err){
+			err && console.log(err);
+			index==subjects.length-1 && onComplete(null);
+		});
+	});
+};
+
+var createNewStudentInScores = function(new_student,db,onComplete){
+	var selectLastStudentID = "select MAX(id) as id from students";
 	var selectSubjectsIds = "select id from subjects where grade_id ="+new_student.gradeId;	
+	
+	db.get(selectLastStudentID, function(err, student){
+		err && console.log(err);
+
+		db.all(selectSubjectsIds, function(err, subjectIds){
+			err && console.log(err);
+			addSubjectScores(subjectIds,student,db,onComplete)
+		});
+	});
+};
+
+var _addNewStudent = function(new_student,db,onComplete){
+	var insert_query = "insert into students (name,grade_id) values('"+
+		new_student.studentName+"',"+new_student.gradeId+")";
 
 	db.run(insert_query, function(err){
 		err && console.log(err);
+		createNewStudentInScores(new_student,db,onComplete);
+	});
+};
 
-		db.get(selectLastStudentID, function(err, student){
+var addStudentScores = function(studentIds,subject,db,onComplete){
+	studentIds.forEach(function(student, index, students){
+		var insert_into_score = "insert into scores (student_id, subject_id) values ("+
+			student.id+","+subject.id+" )";
+		db.run(insert_into_score, function(err){
 			err && console.log(err);
+			index==students.length-1 && onComplete(null);
+		});
+	});
+};
 
-			db.all(selectSubjectsIds, function(err, subjectIds){
-				err && console.log(err);
-
-				subjectIds.forEach(function(subject, index, subjects){
+var createNewSubjectInScores = function(new_subject,db,onComplete){
+	var lastSubjectID = "select MAX(id) as id from subjects";
+	var selectStudentsIds = "select id from students where grade_id="+new_subject.gradeId;
 	
-					var insert_into_score = "insert into scores (student_id, subject_id) values ("+student.id+","+subject.id+" )";
-					db.run(insert_into_score, function(err){
-						err && console.log(err);
-						index==subjects.length-1 && onComplete(null);
-					});
-				});
-			});
+	db.get(lastSubjectID, function(err, subject){
+		err && console.log(err);
 
+		db.all(selectStudentsIds, function(err, studentIds){
+			err && console.log(err);
+			addStudentScores(studentIds,subject,db,onComplete);
 		});
 	});
 };
 
 var _addNewSubject = function(new_subject,db,onComplete){
-	var insert_query = "insert into subjects (name,maxScore,grade_id) values('"+new_subject.subject_name+"',"+new_subject.maxScore+","+new_subject.gradeId+")";
-	var subject_query = "select * from subjects where grade_id="+new_subject.grade_id;
-	db.run(insert_query,onComplete);	
-};
+	var insert_query = "insert into subjects (name,maxScore,grade_id) values('"+
+			new_subject.subject_name+"',"+new_subject.maxScore+","+new_subject.gradeId+")";
 
-// var _getSubjectDetails = function(id,db,onComplete){
-// 	var query = "select id,name as subject_name,grade_id,maxScore from subjects where id="+id;
-// 	db.all(query , function(err, subjectSummary){
-// 		console.log("subject in record",subjectSummary);
-// 		onComplete(err , subjectSummary);
-// 	});
-// };
+	db.run(insert_query, function(err){
+		err && console.log(err);
+		createNewSubjectInScores(new_subject,db,onComplete);
+	});
+};
 
 var init = function(location){	
 	var operate = function(operation){
@@ -242,7 +292,5 @@ var init = function(location){
 	};
 	return records;
 };
-
-
 
 exports.init = init;
