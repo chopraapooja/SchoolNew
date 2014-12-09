@@ -1,0 +1,19 @@
+after adding { id: 1,
+  maxScore: 100,
+  name: 'English-1',
+  grade_id: 1,
+  grade_name: '1st std',
+  score: [ { student_id: 1, student_name: 'Abu', score: 75 } ] }
+// var _getSubjectSummary = function(id,db,onComplete){
+// 	var query  = ['select sb.id as subject_id, sb.name as subject_name,',
+// 	' sb.maxScore, g.id as  grade_id, g.name as grade_name,',
+// 	' st.name as student_name, st.id as student_id, sc.score',
+// 	' as score from students st, grades g,',
+// 	' subjects sb, scores sc where sb.id =',id,
+// 	' and sc.subject_id = ',id,
+// 	' and sc.student_id = st.id',
+// 	' and sb.grade_id = g.id'].join('');
+// 	db.all(query , function(err, subjectSummary){
+// 		onComplete(err , subjectSummary);
+// 	});
+// };

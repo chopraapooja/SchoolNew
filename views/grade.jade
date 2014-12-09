@@ -15,9 +15,23 @@ html
      each student in students
       li 
        a(href="/students/#{student.id}") #{student.name}
+     br
+     form(action='/addStudent/#{id}' method='post')
+      input(type='text' placeholder="Enter new student's name" name="studentName" required)
+      span
+       |    
+      input(type="submit" value = "Add Student")
     div Subjects:
     ul
      each subject in subjects
        li 
         a(href="/subject/#{subject.id}") #{subject.name}
-      
+     br
+     form(action='/addSubject/#{id}' method='post')
+      input(type='text' placeholder="Enter subject's name" name="subject_name" required)
+      span
+       |   
+      input(type='number' placeholder="Enter subject's maxScore" name="maxScore" required)
+      span
+       |  
+      input(type="submit" value = "Add Subject")

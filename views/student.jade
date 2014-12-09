@@ -10,16 +10,18 @@ html
     div Name: #{name}
     div Grade: 
      a(href="/grades/#{grade_id}") #{grade_name}
-   div
-    table(border="4")
-     tr
-      th Subject
-      th Max
-      th Score
-     each subject in subjects
-      tr
-       td
-        a(href="/subject/#{subject.id}") #{subject.name}
-       td #{subject.maxScore}
-       td #{subject.score}
+     div
+      table(border="4")
+       tr
+        th Subject
+        th Max
+        th Score
+       each subject in subjects
+        tr
+         td
+          a(href="/subject/#{subject.id}") #{subject.name}
+         td #{subject.maxScore}
+         td #{subject.score} 
+    
+   
   button(type="button", onclick="location.href='/editStudentSummary/#{id}'") Edit

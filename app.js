@@ -22,13 +22,15 @@ app.get('/subjects',school_routes.get_subjects);
 app.get('/students/:id',school_routes.get_student);
 app.get('/grades/:id',school_routes.get_grade_summary);
 app.get('/subject/:id',school_routes.get_subject_summary);
-app.get('/editStudentSummary/:id',school_routes.edit_student_summary);
-app.get('/editSubjectSummary/:id',school_routes.edit_subject_summary);
 
+app.get('/editStudentSummary/:id',school_routes.edit_student_summary);
 app.post('/students/:id',school_routes.update_student_summary);
+
+app.get('/editSubjectSummary/:id',school_routes.edit_subject_summary);
 app.post('/subject/:id',school_routes.update_subject_summary);
 
-
+app.post('/addStudent/:id',school_routes.add_new_student);
+app.post('/addSubject/:id',school_routes.add_new_subject);
 
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

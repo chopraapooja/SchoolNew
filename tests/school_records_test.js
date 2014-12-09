@@ -17,9 +17,9 @@ describe('school_records',function(){
 			school_records.getGrades(function(err,grades){
 				assert.deepEqual(grades,[{id:1,name:'1st std'},{id:2,name:'2nd std'}]);
 				done();
-			})
-		})
-	})
+			});
+		});
+	});
 
 	describe('#getStudentsByGrade',function(){
 		it('retrieves the students in the 2 grades',function(done){
@@ -28,9 +28,9 @@ describe('school_records',function(){
 				assert.lengthOf(grades[0].students,4);
 				assert.lengthOf(grades[1].students,3);
 				done();
-			})
-		})
-	})
+			});
+		});
+	});
 
 	describe('#getSubjectsByGrade',function(){
 		it('retrieves the subjects in the 2 grades',function(done){
@@ -39,9 +39,9 @@ describe('school_records',function(){
 				assert.lengthOf(grades[0].subjects,3);
 				assert.lengthOf(grades[1].subjects,0);
 				done();
-			})
-		})
-	})
+			});
+		});
+	});
 
 	describe('#getStudentSummary',function(){
 		it('retrieves the summary of the student Abu',function(done){
@@ -52,17 +52,18 @@ describe('school_records',function(){
 					{id:2,name:'Maths-1',score:50,maxScore:100},
 					{id:3,name:'Moral Science',score:25,maxScore:50}]);
 				done();
-			})
-		})
+			});
+		});
 
 		it('retrieves nothing of the non existent student',function(done){
 			school_records.getStudentSummary(9, function(err,s){
 				assert.notOk(err);
 				assert.notOk(s);				
 				done();
-			})
-		})
-	})
+			});
+		});
+	});
+
 	describe('#getGradeSummary',function(){
 		it('retrieves the summary of grade 1',function(done){
 			school_records.getGradeSummary(1,function(err,grade){
@@ -77,24 +78,21 @@ describe('school_records',function(){
 					{id:4,name:'Dabu'}]);
 				assert.equal(grade.id,1);
 				done();
-			})
-		})
-	})
-
+			});
+		});
+	});
 
 	describe('#getSubjectSummary',function(){
 		it('retrieves the summary of subject 1',function(done){
 			school_records.getSubjectSummary(1,function(err,subject){
 				assert.notOk(err);
-				assert.equal(subject[0].subject_name,'English-1');
-				assert.deepEqual(subject, [{ subject_id: 1,
- 						 subject_name: 'English-1',
- 						 maxScore: 100,
- 						 grade_id: 1,
- 						 grade_name: '1st std',
- 						 student_name: 'Abu',
- 						 student_id: 1,
- 						 score: 75 }]);
+				assert.equal(subject.name,'English-1');
+				assert.deepEqual(subject, { id: 1,
+					  	maxScore: 100,
+  						name: 'English-1',
+  						grade_id: 1,
+  						grade_name: '1st std',
+  						score: [ { student_id: 1, student_name: 'Abu', score: 75 } ] });
 				done();
 			});
 		});
@@ -142,23 +140,59 @@ describe('school_records',function(){
 
 	describe('#updateSubjectSummary',function(){
 		it('update subject[name,max score and grade id]',function(done){
-			var newSubject = {subjectName:'comedy' ,subjectId:1,maxScore:75,gradeName:'2nd std'};
+			var editedSubject = {subjectName:'comedy' ,subjectId:1,maxScore:75,gradeName:'2nd std'};
+			var expected =  {id:1,name: 'comedy', maxScore: 75, grade_name: "2nd std", grade_id: 2 };
 
-			var expected = [{ subject_id: 1,subject_name: 'comedy',maxScore: 75,grade_id: 2,
-			grade_name: '2nd std',student_name: 'Abu',student_id: 1,score: 75 }];
-
-			school_records.updateSubjectSummary(newSubject, function(err){
+			school_records.updateSubjectSummary(editedSubject, function(err){
 				assert.notOk(err);
-			school_records.getSubjectSummary(1,function(err,subject){
+				school_records.getSubjectSummary(1,function(err,subject){
 					assert.notOk(err);
-					console.log(subject)
-					assert.equal(subject[0].subject_name,'comedy');
-					assert.equal(subject[0].maxScore, 75);
-					assert.equal(subject[0].grade_id,2)
-					assert.deepEqual(subject,expected);
+					assert.equal(subject.name,'comedy');
+					assert.deepEqual(subject, { id: 1,
+						  	maxScore: 75,
+	  						name: 'comedy',
+	  						grade_id: 2,
+	  						grade_name: '2nd std',
+	  						score: [] });
 					done();
 				});
 			});
 		});
-	})
+	});
+
+	describe('#addNewStudent',function(){
+		it('add a new student in students table',function(done){
+			var newStudent = {studentName:'chopra',gradeId:1};
+			school_records.addNewStudent(newStudent,function(err){
+				assert.notOk(err);
+				school_records.getStudentSummary(8, function(err,s){				
+					assert.equal(s.name,'chopra');
+					assert.equal(s.grade_name,'1st std');
+					assert.equal(s.grade_id,1);
+					//wtrfassert.equal(s.score, {"1" : 75,"2" : 50,"3" : 25});
+					done();
+				});
+
+			});
+		});
+	});
+	describe('#addNewSubject',function(){
+		it('add a new subject in subjects table',function(done){
+			var newSubject = {subject_name:'cricket',gradeId:2,maxScore:100};
+			school_records.addNewSubject(newSubject,function(err){
+				assert.notOk(err);
+				school_records.getSubjectSummary(4,function(err,subject){
+					assert.notOk(err);
+					assert.equal(subject.name,'cricket');
+					assert.deepEqual(subject, { id: 4,
+						  	maxScore: 100,
+	  						name: 'cricket',
+	  						grade_id: 2,
+	  						grade_name: '2nd std',
+	  						score: [] });
+					done();
+				});
+			});
+		});
+	});
 });

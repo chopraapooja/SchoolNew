@@ -7,18 +7,18 @@ html
   h1 Subject Summary
   table(border=1)
    tr 
-   th #{subject[0].subject_name}
-   th #{subject[0].maxScore}
+   th #{name}
+   th #{maxScore}
    th 
-    a(href="/grades/#{subject[0].grade_id}") #{subject[0].grade_name}
+    a(href="/grades/#{grade_id}") #{grade_name}
   table(border=1 )
    th Student Name
    th Score
-   each sb in subject
+   each sc in score
     tr 
      td
-      a(href="/students/#{sb.student_id}") #{sb.student_name}
-     td #{sb.score}
+      a(href="/students/#{sc.student_id}") #{sc.student_name}
+     td #{sc.score}
   br
-  button(type="button", onclick="location.href='/editSubjectSummary/#{subject[0].subject_id}'") Edit
+  button(type="button", onclick="location.href='/editSubjectSummary/#{id}'") Edit
 

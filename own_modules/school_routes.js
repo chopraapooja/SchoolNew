@@ -19,12 +19,13 @@ exports.get_subjects = function(req,res){
 
 exports.get_student = function(req,res,next){
 	school_records.getStudentSummary(req.params.id,
-	function(err,student){
-		if(!student) 
-			next();
-		else 
-			res.render('student',student);
-	});
+		function(err,student){
+			console.log(student);
+			if(!student) 
+				next();
+			else 
+				res.render('student',student);
+		});
 };
 
 exports.get_subject_summary = function(req,res,next){
@@ -33,7 +34,7 @@ exports.get_subject_summary = function(req,res,next){
 		if(!subject) 
 			next();
 		else 
-			res.render('subject',{'subject':subject});
+			res.render('subject',subject);
 	});
 };
 
@@ -92,13 +93,40 @@ exports.edit_subject_summary = function(req,res,next){
 
 exports.update_subject_summary = function(req,res,next){
 	var new_subject = req.body;
-	new_subject.subjectId = req.params.id;
-
+	new_subject.subjectId = +req.params.id;
 	school_records.updateSubjectSummary(new_subject,function(err){
 		if(err){
 			res.end('Invalid Data');
 		}
 		res.writeHead(302,{"Location": "/subject/"+new_subject.subjectId});
 		res.end();
+	});
+};
+
+exports.add_new_student = function(req,res,next){
+	var new_student = req.body;
+	new_student.gradeId = +req.params.id;
+	school_records.addNewStudent(new_student,function(err){
+		if(err){
+			res.send("Invalid data");
+		}
+		else{
+			res.writeHead(302,{'Location':"/grades/"+new_student.gradeId});
+			res.end();
+		}
+	});
+};
+
+exports.add_new_subject = function(req,res,next){
+	var new_subject = req.body;
+	new_subject.gradeId = +req.params.id;
+	school_records.addNewSubject(new_subject,function(err){
+		if(err){
+			res.send("Invalid data");
+		}
+		else{
+			res.writeHead(302,{'Location':"/grades/"+new_subject.gradeId});
+			res.end();
+		}
 	});
 };
