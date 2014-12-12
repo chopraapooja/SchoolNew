@@ -20,8 +20,10 @@ exports.get_subjects = function(req,res){
 exports.get_student = function(req,res,next){
 	school_records.getStudentSummary(req.params.id,
 		function(err,student){
-			if(!student) 
+			if(!student){ 
+				res.send('Student of this ID does not exists'); 
 				next();
+			}
 			else 
 				res.render('student',student);
 		});
@@ -37,23 +39,34 @@ exports.get_subject_summary = function(req,res,next){
 	});
 };
 
-var renameGrade = function(req,res){
-	var id = req.path[req.path.length-1];
-	var new_grade = {id:id,newname:req.query.newname};
+exports.update_grade_name = function(req, res, next){
+	var new_grade = req.body;
+	new_grade.id = req.params.id;
 	school_records.updateGrade(new_grade,function(err){
-		res.writeHead(302,{"Location": "/grades/"+id});
+		res.writeHead(302,{"Location": "/grades/"+new_grade.id});
 		res.end();
 	});
 };
 
+// var renameGrade = function(req,res){
+// 	var id = req.path[req.path.length-1];
+// 	var new_grade = {id:id,newname:req.query.newname};
+// 	school_records.updateGrade(new_grade,function(err){
+// 		res.writeHead(302,{"Location": "/grades/"+id});
+// 		res.end();
+// 	});
+// };
+
 exports.get_grade_summary = function(req,res,next){
-	if(req.query.newname){
-		renameGrade(req,res);
-		return; 
-	}
+	// if(req.query.newname){
+	// 	renameGrade(req,res);
+	// 	return; 
+	// }
 	school_records.getGradeSummary(req.params.id,function(err,grade){		
-		if(!grade)
+		if(!grade){
+			res.send('Grade does not exists');
 			next();
+		}
 		else
 			res.render('grade',grade);
 	});
@@ -61,8 +74,9 @@ exports.get_grade_summary = function(req,res,next){
 
 exports.edit_student_summary = function(req,res,next){
 	school_records.getStudentSummary(req.params.id,function(err,student){
-		if(!student) 
+		if(!student){
 			next();
+		}
 		else 
 			res.render('editStudentSummary',student);
 	});

@@ -80,6 +80,13 @@ describe('school_records',function(){
 				done();
 			});
 		});
+		it('retrieves nothing of the non existent grade',function(done){
+			school_records.getGradeSummary(9, function(err,g){
+				assert.notOk(err);
+				assert.notOk(g);				
+				done();
+			});
+		});
 	});
 
 	describe('#getSubjectSummary',function(){
@@ -100,7 +107,7 @@ describe('school_records',function(){
 
 	describe('#renameGrade',function(){
 		it('edits the grade name',function(done){
-			school_records.updateGrade({id:1,newname:'class--1'},function(err){
+			school_records.updateGrade({id:1,newGradeName:'class--1'},function(err){
 				assert.notOk(err);
 				school_records.getGradeSummary(1,function(egs,grade){
 					assert.deepEqual(grade.name,'class--1');

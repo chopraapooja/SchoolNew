@@ -6,7 +6,7 @@ var _getGrades = function(db,onComplete){
 };
 
 var filterStudentsByGrade = function(students, grades){
-	grades.forEach(function(g){	// filterStudentsByGrade
+	grades.forEach(function(g){	
 		g.students = students.filter(function(s){return s.grade_id==g.id});
 	});
 }
@@ -81,12 +81,15 @@ var getGradeDetails = function(grade, db, onComplete){
 var _getGradeSummary = function(id,db,onComplete){
 	var grade_query = "select id,name from grades where id="+id;
 	db.get(grade_query,function(err,grade){
-		getGradeDetails(grade,db,onComplete)
+		if(!grade)
+			onComplete(err,grade)
+		else
+			 getGradeDetails(grade,db,onComplete)
 	});
 };
 
 var _updateGrade = function(new_grade,db,onComplete){
-	var query = "update grades set name='"+new_grade.newname+"' where id="+new_grade.id;
+	var query = "update grades set name='"+new_grade.newGradeName+"' where id="+new_grade.id;
 	db.run(query,onComplete);
 };
 
@@ -273,7 +276,7 @@ var _updateScore = function(new_score,db,onComplete){
 	var update_score_query = 'update scores set score = "'+new_score[key]+'" where subject_id='+
 	ids.subjectId+ ' and student_id = '+ ids.studentId;
 	db.run(update_score_query,onComplete);	
-}
+};
 
 var init = function(location){	
 	var operate = function(operation){

@@ -8,8 +8,18 @@ html
   h1 Grade Summary
   p
    div
-    div(class="name") Name: #{name}
-    div(class="edit" onclick='renameGrade("#{id}")') Edit
+    form(action='/updateGradeName/#{id}' method='post')
+     div(class="name") Name:
+      span
+       | 
+      input(type='text' value= '#{name}' name="newGradeName" id="gradeName" disabled)
+      span
+       |  
+      input(type='submit' value='Save')
+    br
+    button(onclick='enableTextBox("gradeName")') Edit Grade
+    br
+    br
     div Students:
     ul
      each student in students
